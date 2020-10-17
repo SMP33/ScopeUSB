@@ -35,7 +35,6 @@ typedef uint16_t DataADC;
 /* USER CODE BEGIN PD */
 
 #define pkgSize 225
-#define measuresSize (pkgSize*100)
 
 /* USER CODE END PD */
 
@@ -70,26 +69,12 @@ static void MX_USART2_UART_Init(void);
 
 
  volatile DataADC data[pkgSize];
- static DataADC measures[measuresSize];
- DataADC value=0;
-
- uint16_t count=0;
 
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
 {
-	 //HAL_ADC_Stop_DMA(&hadc1);
-
 	 CDC_Transmit_FS((DataADC*)data, pkgSize*sizeof(DataADC));
-//	data[count]=value;
-//	if(count==pkgSize-1){
-//		count=0;
-//		CDC_Transmit_FS((DataADC*)data, pkgSize*sizeof(DataADC));
-//			HAL_GPIO_TogglePin(GPIOD, GPIO_PIN_15);
-//	}else{
-//		count++;
-//	}
 
-	//HAL_ADC_Start_DMA(&hadc1, (uint32_t*)&data,pkgSize);
+	HAL_ADC_Start_DMA(&hadc1, (uint32_t*)&data,pkgSize);
 
 }
 
@@ -134,11 +119,6 @@ int main(void)
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
 
-  for(uint32_t i=0;i<pkgSize;i++){
-	  data[i]=0;
-  }
-
-  //HAL_ADC_Start_DMA(&hadc1, (uint16_t*)&value,1);
   HAL_ADC_Start_DMA(&hadc1, (uint32_t*)&data,pkgSize);
 
   while (1)
@@ -213,7 +193,7 @@ static void MX_ADC1_Init(void)
   /** Configure the global features of the ADC (Clock, Resolution, Data Alignment and number of conversion)
   */
   hadc1.Instance = ADC1;
-  hadc1.Init.ClockPrescaler = ADC_CLOCK_SYNC_PCLK_DIV2;
+  hadc1.Init.ClockPrescaler = ADC_CLOCK_SYNC_PCLK_DIV4;
   hadc1.Init.Resolution = ADC_RESOLUTION_12B;
   hadc1.Init.ScanConvMode = DISABLE;
   hadc1.Init.ContinuousConvMode = ENABLE;
