@@ -69,14 +69,30 @@ static void MX_USART2_UART_Init(void);
 
 
  volatile DataADC data[pkgSize];
+ volatile DataADC data2[pkgSize];
+
+ uint8_t currentBufferId=0;
+ uint8_t lastBufferId=0;
 
  uint8_t timeToSendData=0;
 
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
 {
+	lastBufferId=currentBufferId;
+	currentBufferId++;
+
+	if(currentBufferId==2)
+	{
+		currentBufferId=0;
+	}
+
 	timeToSendData=1;
 
-	HAL_ADC_Start_DMA(&hadc1, (uint32_t*)&data,pkgSize);
+	if(currentBufferId) {
+		HAL_ADC_Start_DMA(&hadc1, (uint32_t*)&data,pkgSize);
+	}else {
+		HAL_ADC_Start_DMA(&hadc1, (uint32_t*)&data2,pkgSize);
+	}
 
 }
 
@@ -126,7 +142,12 @@ int main(void)
   while (1)
   {
 	  if(timeToSendData){
-		  CDC_Transmit_FS((DataADC*)data, pkgSize*sizeof(DataADC));
+
+		  if(lastBufferId){
+			  CDC_Transmit_FS((DataADC*)data, pkgSize*sizeof(DataADC));
+		  }else {
+			  CDC_Transmit_FS((DataADC*)data2, pkgSize*sizeof(DataADC));
+		  }
 	  }
     /* USER CODE END WHILE */
 
