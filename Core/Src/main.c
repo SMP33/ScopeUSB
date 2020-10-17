@@ -35,6 +35,11 @@ typedef uint16_t DataADC;
 /* USER CODE BEGIN PD */
 
 #define pkgSize 225
+#define buffersCount 4
+
+#define    DWT_CYCCNT    *(volatile uint32_t*)0xE0001004
+#define    DWT_CONTROL   *(volatile uint32_t*)0xE0001000
+#define    SCB_DEMCR     *(volatile uint32_t*)0xE000EDFC
 
 /* USER CODE END PD */
 
@@ -68,31 +73,35 @@ static void MX_USART2_UART_Init(void);
 
 
 
- volatile DataADC data[pkgSize];
- volatile DataADC data2[pkgSize];
+ volatile DataADC data[buffersCount][pkgSize];
 
  uint8_t currentBufferId=0;
  uint8_t lastBufferId=0;
 
  uint8_t timeToSendData=0;
 
+ uint32_t ticks=0;
+
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
 {
 	lastBufferId=currentBufferId;
 	currentBufferId++;
 
-	if(currentBufferId==2)
+	if(currentBufferId==buffersCount)
 	{
 		currentBufferId=0;
 	}
 
 	timeToSendData=1;
 
-	if(currentBufferId) {
-		HAL_ADC_Start_DMA(&hadc1, (uint32_t*)&data,pkgSize);
-	}else {
-		HAL_ADC_Start_DMA(&hadc1, (uint32_t*)&data2,pkgSize);
-	}
+
+	//SCB_DEMCR |= CoreDebug_DEMCR_TRCENA_Msk;// разрешаем использовать DWT
+	//DWT_CYCCNT = 0;// обнуляем значение
+	//DWT_CONTROL|= DWT_CTRL_CYCCNTENA_Msk; // включаем счётчик
+
+	HAL_ADC_Start_DMA(&hadc1, (uint32_t*)&data[currentBufferId],pkgSize);
+
+	//ticks = DWT_CYCCNT;//смотрим сколько натикало
 
 }
 
@@ -137,17 +146,13 @@ int main(void)
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
 
-  HAL_ADC_Start_DMA(&hadc1, (uint32_t*)&data,pkgSize);
+  HAL_ADC_Start_DMA(&hadc1, (uint32_t*)&data[0],pkgSize);
 
   while (1)
   {
 	  if(timeToSendData){
-
-		  if(lastBufferId){
-			  CDC_Transmit_FS((DataADC*)data, pkgSize*sizeof(DataADC));
-		  }else {
-			  CDC_Transmit_FS((DataADC*)data2, pkgSize*sizeof(DataADC));
-		  }
+		  timeToSendData=0;
+		  CDC_Transmit_FS((DataADC*)data[lastBufferId], pkgSize*sizeof(DataADC));
 	  }
     /* USER CODE END WHILE */
 
