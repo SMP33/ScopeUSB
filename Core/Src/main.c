@@ -70,9 +70,11 @@ static void MX_USART2_UART_Init(void);
 
  volatile DataADC data[pkgSize];
 
+ uint8_t timeToSendData=0;
+
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
 {
-	 CDC_Transmit_FS((DataADC*)data, pkgSize*sizeof(DataADC));
+	timeToSendData=1;
 
 	HAL_ADC_Start_DMA(&hadc1, (uint32_t*)&data,pkgSize);
 
@@ -123,6 +125,9 @@ int main(void)
 
   while (1)
   {
+	  if(timeToSendData){
+		  CDC_Transmit_FS((DataADC*)data, pkgSize*sizeof(DataADC));
+	  }
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
