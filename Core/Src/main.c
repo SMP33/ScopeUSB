@@ -28,14 +28,15 @@
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
-typedef uint16_t DataADC;
 /* USER CODE END PTD */
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
 
-#define pkgSize 225
-#define buffersCount 4
+#define pkgSize (480/2)
+
+#define FIRST_BUF_HALF 1
+#define SECOND_BUF_HALF 2
 
 #define    DWT_CYCCNT    *(volatile uint32_t*)0xE0001004
 #define    DWT_CONTROL   *(volatile uint32_t*)0xE0001000
@@ -77,38 +78,17 @@ static void MX_TIM2_Init(void);
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 
-
-
- volatile DataADC data[buffersCount][pkgSize];
-
- uint8_t currentBufferId=0;
- uint8_t lastBufferId=0;
-
+ volatile uint16_t buffer[pkgSize*2];
  uint8_t timeToSendData=0;
 
- uint32_t ticks=0;
+ void HAL_ADC_ConvHalfCpltCallback(ADC_HandleTypeDef* hadc)
+ {
+	 timeToSendData=1;
+ }
 
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
 {
-	lastBufferId=currentBufferId;
-	currentBufferId++;
-
-	if(currentBufferId==buffersCount)
-	{
-		currentBufferId=0;
-	}
-
-	timeToSendData=1;
-
-
-	//SCB_DEMCR |= CoreDebug_DEMCR_TRCENA_Msk;// разрешаем использовать DWT
-	//DWT_CYCCNT = 0;// обнуляем значение
-	//DWT_CONTROL|= DWT_CTRL_CYCCNTENA_Msk; // включаем счётчик
-
-	HAL_ADC_Start_DMA(&hadc1, (uint32_t*)&data[currentBufferId],pkgSize);
-
-	//ticks = DWT_CYCCNT;//смотрим сколько натикало
-
+	timeToSendData=2;
 }
 
 /* USER CODE END 0 */
@@ -156,14 +136,22 @@ int main(void)
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
 
-  HAL_ADC_Start_DMA(&hadc1, (uint32_t*)&data[0],pkgSize);
+  HAL_ADC_Start_DMA(&hadc1, (uint16_t*)&buffer,pkgSize*2);
 
   while (1)
   {
-	  if(timeToSendData){
-		  timeToSendData=0;
-		  CDC_Transmit_FS((DataADC*)data[lastBufferId], pkgSize*sizeof(DataADC));
-	  }
+	  switch (timeToSendData) {
+		case FIRST_BUF_HALF:
+			timeToSendData=0;
+			CDC_Transmit_FS((uint16_t*)&buffer, pkgSize*sizeof(uint16_t));
+			break;
+		case SECOND_BUF_HALF:
+			timeToSendData=0;
+			CDC_Transmit_FS((uint16_t*)&buffer+pkgSize, pkgSize*sizeof(uint16_t));
+			break;
+		default:
+			break;
+	}
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
