@@ -33,7 +33,7 @@
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
 
-#define PKG_SIZE 240
+#define PKG_SIZE 120
 
 #define FIRST_BUF_HALF 1
 #define SECOND_BUF_HALF 2
@@ -79,7 +79,7 @@ static void MX_TIM2_Init(void);
 /* USER CODE BEGIN 0 */
 
 volatile uint16_t buffer[PKG_SIZE * 2];
-volatile uint16_t out[PKG_SIZE];
+volatile float out[PKG_SIZE];
 uint8_t timeToSendData = 0;
 uint16_t *dataPtr;
 
@@ -110,15 +110,12 @@ void processData() {
 
 	for (int i = 0; i < PKG_SIZE; i++) {
 
-		out[i] = dataPtr[i];
+		out[i] = dataPtr[i]*1.5;
 	}
 
-	for (int i = 0; i < 2; i++) {
+	CDC_Transmit_FS((uint8_t*) out, PKG_SIZE * sizeof(float));
 
-		CDC_Transmit_FS((uint16_t*) out + i * PKG_SIZE,
-				PKG_SIZE * sizeof(uint16_t));
 
-	}
 	//CDC_Transmit_FS(dataPtr, PKG_SIZE*sizeof(uint16_t));
 }
 
