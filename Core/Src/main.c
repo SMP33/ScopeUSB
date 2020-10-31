@@ -20,12 +20,10 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "usb_device.h"
-#include "math.h"
-#include "globalFilter.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "globalFilter.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -113,7 +111,9 @@ void processData() {
 
 	for (int i = 0; i < PKG_SIZE; i++) {
 
-		out[i] = globalFilterF3(globalFilterF2(globalFilterF1(dataPtr[i])));
+		out[i] =globalFilterF2(globalFilterF1(dataPtr[i]));
+
+
 	}
 
 	CDC_Transmit_FS((uint8_t*) out, PKG_SIZE * sizeof(float));
