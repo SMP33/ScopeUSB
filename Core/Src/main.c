@@ -20,6 +20,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "usb_device.h"
+#include "math.h"
 #include "globalFilter.h"
 
 /* Private includes ----------------------------------------------------------*/
@@ -92,6 +93,7 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc) {
 	timeToSendData = 2;
 }
 
+
 void processData() {
 
 	//Выбираем текущий буфер, если выставлен флаг, если флаг не выставлен - return
@@ -111,7 +113,19 @@ void processData() {
 
 	for (int i = 0; i < PKG_SIZE; i++) {
 
-		out[i] = globalFilter(dataPtr[i]);
+		out[i] = globalFilterF1(dataPtr[i]);
+
+		if(isinff(out[i])){
+			 int b1=0;
+			 int b2=0;
+		}
+
+		out[i] = globalFilterF2(out[i]);
+
+		if(isinff(out[i])){
+					 int b1=0;
+					 int b2=0;
+				}
 	}
 
 	CDC_Transmit_FS((uint8_t*) out, PKG_SIZE * sizeof(float));
