@@ -113,19 +113,7 @@ void processData() {
 
 	for (int i = 0; i < PKG_SIZE; i++) {
 
-		out[i] = globalFilterF1(dataPtr[i]);
-
-		if(isinff(out[i])){
-			 int b1=0;
-			 int b2=0;
-		}
-
-		out[i] = globalFilterF2(out[i]);
-
-		if(isinff(out[i])){
-					 int b1=0;
-					 int b2=0;
-				}
+		out[i] = globalFilterF3(globalFilterF2(globalFilterF1(dataPtr[i])));
 	}
 
 	CDC_Transmit_FS((uint8_t*) out, PKG_SIZE * sizeof(float));

@@ -7,7 +7,7 @@
 
 H(s) =
 
-      1
+      s
   ---------
   s + 6.283
 
@@ -15,9 +15,9 @@ Continuous-time transfer function.
 
 H(z) =
 
-  4.348e-06 z + 4.348e-06
-  -----------------------
-        z - 0.9999
+    z - 1
+  ----------
+  z - 0.9999
 
 Sample time: 8.6957e-06 seconds
 Discrete-time transfer function.
@@ -33,13 +33,54 @@ static float YF10=0;
 static float YF11=0;
 
 YF10 = - (-0.9999453649707948) * YF11
-     + (0.0000043477073152) * XF10 + (0.0000043477073152) * XF11;
+     + (-0.9999726824853974) * XF10 + (0.9999726824853974) * XF11;
 
 XF11=XF10;
 
 YF11=YF10;
 
 return YF10;
+}
+
+/*
+Данная функция автоматически сгенерирована
+ для фильтра:
+
+H(s) =
+
+  1
+  -
+  s
+
+Continuous-time transfer function.
+
+H(z) =
+
+  4.348e-06 z + 4.348e-06
+  -----------------------
+           z - 1
+
+Sample time: 8.6957e-06 seconds
+Discrete-time transfer function.
+
+
+*/
+
+float globalFilterF2(float XF20)
+{
+static float XF21=0;
+
+static float YF20=0;
+static float YF21=0;
+
+YF20 = - (-1.0000000000000000) * YF21
+     + (0.0000043478260869) * XF20 + (0.0000043478260869) * XF21;
+
+XF21=XF20;
+
+YF21=YF20;
+
+return YF20;
 }
 
 /*
@@ -66,21 +107,21 @@ Discrete-time transfer function.
 
 */
 
-float globalFilterF2(float XF20)
+float globalFilterF3(float XF30)
 {
-static float XF21=0;
+static float XF31=0;
 
-static float YF20=0;
-static float YF21=0;
+static float YF30=0;
+static float YF31=0;
 
-YF20 = - (-0.9999453649707948) * YF21
-     + (-0.9999726824853974) * XF20 + (0.9999726824853974) * XF21;
+YF30 = - (-0.9999453649707948) * YF31
+     + (-0.9999726824853974) * XF30 + (0.9999726824853974) * XF31;
 
-XF21=XF20;
+XF31=XF30;
 
-YF21=YF20;
+YF31=YF30;
 
-return YF20;
+return YF30;
 }
 
 #endif /* INC_GLOBALFILTER_H_ */
