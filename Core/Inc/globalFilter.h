@@ -20,7 +20,6 @@ H(z) =
 Sample time: 8.6957e-06 seconds
 Discrete-time transfer function.
 
-
 */
 
 float globalFilterF1(float XF10)
@@ -30,8 +29,8 @@ static float XF11=0;
 static float YF10=0;
 static float YF11=0;
 
-YF10 = - (-0.9999453650985516) * YF11
-     + (-0.9999726825492758) * XF10 + (0.9999726825492757) * XF11;
+YF10 = -  YF11*(-0.9999453650985516f)
+     + XF10*(-0.9999726825492758f) +  XF11*(0.9999726825492757f);
 
 XF11=XF10;
 
@@ -63,7 +62,6 @@ H(z) =
 Sample time: 8.6957e-06 seconds
 Discrete-time transfer function.
 
-
 */
 
 float globalFilterF2(float XF20)
@@ -73,8 +71,8 @@ static float XF21=0;
 static float YF20=0;
 static float YF21=0;
 
-YF20 = - (-0.9999453650985516) * YF21
-     + (0.0000043477073155) * XF20 + (0.0000043477073154) * XF21;
+YF20 = -  YF21*(-0.9999453650985516f)
+     +  XF20*(0.0000043477073155f) + XF21*(0.0000043477073154f);
 
 XF21=XF20;
 
@@ -105,7 +103,6 @@ H(z) =
 
 Sample time: 8.6957e-06 seconds
 Discrete-time transfer function.
-
 
 */
 
@@ -149,7 +146,6 @@ H(z) =
 Sample time: 8.6957e-06 seconds
 Discrete-time transfer function.
 
-
 */
 
 float globalFilterF4(float XF40)
@@ -159,8 +155,8 @@ static float XF41=0;
 static float YF40=0;
 static float YF41=0;
 
-YF40 = - (-0.5708673601406956) * YF41
-     + (0.2145663199296523) * XF40 + (0.2145663199296522) * XF41;
+YF40 = -  YF41*(-0.5708673601406956f)
+     + XF40*(0.2145663199296523f) +  XF41*(0.2145663199296522f);
 
 XF41=XF40;
 

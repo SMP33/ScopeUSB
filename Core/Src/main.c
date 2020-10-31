@@ -91,6 +91,7 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc) {
 	timeToSendData = 2;
 }
 
+uint32_t cycles_count=123;
 
 void processData() {
 
@@ -108,15 +109,22 @@ void processData() {
 	}
 
 	timeToSendData = 0;
+	CoreDebug->DEMCR |= CoreDebug_DEMCR_TRCENA_Msk; // Разрешаем TRACE
+	DWT->CTRL |= DWT_CTRL_CYCCNTENA_Msk; // Разрешаем счетчик тактов
+	DWT->CYCCNT = 0; // Обнуляем счетчик
 
 	for (int i = 0; i < PKG_SIZE; i++) {
 
-		out[i] =globalFilterF2(globalFilterF1(dataPtr[i]));
+		out[i] =globalFilterF4(globalFilterF2(globalFilterF1(dataPtr[i])));
 
 
 	}
 
+	cycles_count = DWT->CYCCNT; // Читаем счетчик тактов
+
 	CDC_Transmit_FS((uint8_t*) out, PKG_SIZE * sizeof(float));
+
+
 
 	//CDC_Transmit_FS(dataPtr, PKG_SIZE*sizeof(uint16_t));
 }
